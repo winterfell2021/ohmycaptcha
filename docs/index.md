@@ -6,7 +6,7 @@
 
 ## ⚡ Self-hostable captcha solving with a clean YesCaptcha-style API
 
-OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multimodal models** into a focused service for **flow2api** and similar integrations.
+OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multimodal models** into a focused service for **flow2api** and similar integrations. Supports **19 task types** across reCAPTCHA, hCaptcha, Cloudflare Turnstile, and image classification.
 
 <div class="hero__actions" markdown>
 
@@ -19,7 +19,7 @@ OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multim
 </div>
 
 <div class="hero__visual">
-  <img src="assets/ohmycaptcha-diagram.png" alt="OhMyCaptcha architecture diagram">
+  <img src="assets/ohmycaptcha-hero.svg" alt="OhMyCaptcha architecture diagram">
 </div>
 
 </div>
@@ -32,19 +32,19 @@ OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multim
 
     ---
 
-    Familiar async `createTask` / `getTaskResult` semantics for the task types implemented in this repository.
+    Familiar async `createTask` / `getTaskResult` semantics covering reCAPTCHA v2/v3, hCaptcha, Turnstile, and image classification.
 
--   :material-google-chrome: **Browser-based reCAPTCHA v3**
+-   :material-google-chrome: **Browser-based solving**
 
     ---
 
-    Playwright + Chromium power the token-generation path for supported targets.
+    Playwright + Chromium automate token generation for reCAPTCHA v2/v3, hCaptcha, and Cloudflare Turnstile.
 
 -   :material-image-search: **Multimodal image recognition**
 
     ---
 
-    Route image captcha analysis through hosted or self-hosted OpenAI-compatible providers.
+    Route image captcha analysis through OpenAI-compatible vision models for HCaptcha, reCAPTCHA, FunCaptcha, and AWS classification.
 
 -   :material-cloud-outline: **Self-hosted deployment**
 
@@ -56,11 +56,32 @@ OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multim
 
 ## 🧠 Supported task types
 
-- `RecaptchaV3TaskProxyless`
-- `RecaptchaV3TaskProxylessM1`
-- `RecaptchaV3TaskProxylessM1S7`
-- `RecaptchaV3TaskProxylessM1S9`
-- `ImageToTextTask`
+### Browser-based solving (12 types)
+
+| Category | Task Types |
+|----------|-----------|
+| **reCAPTCHA v3** | `RecaptchaV3TaskProxyless`, `RecaptchaV3TaskProxylessM1`, `RecaptchaV3TaskProxylessM1S7`, `RecaptchaV3TaskProxylessM1S9` |
+| **reCAPTCHA v3 Enterprise** | `RecaptchaV3EnterpriseTask`, `RecaptchaV3EnterpriseTaskM1` |
+| **reCAPTCHA v2** | `NoCaptchaTaskProxyless`, `RecaptchaV2TaskProxyless`, `RecaptchaV2EnterpriseTaskProxyless` |
+| **hCaptcha** | `HCaptchaTaskProxyless` |
+| **Cloudflare Turnstile** | `TurnstileTaskProxyless`, `TurnstileTaskProxylessM1` |
+
+### Image recognition (3 types)
+
+| Task Type | Description |
+|-----------|-------------|
+| `ImageToTextTask` | Argus-inspired multimodal recognition for click, slide, and drag captchas |
+| `ImageToTextTaskMuggle` | Text/alphanumeric image recognition |
+| `ImageToTextTaskM1` | Async image text recognition |
+
+### Image classification (4 types)
+
+| Task Type | Description |
+|-----------|-------------|
+| `HCaptchaClassification` | hCaptcha grid image classification |
+| `ReCaptchaV2Classification` | reCAPTCHA v2 grid cell selection |
+| `FunCaptchaClassification` | FunCaptcha image selection |
+| `AwsClassification` | AWS CAPTCHA image classification |
 
 ## 🚀 Quick paths
 
@@ -78,7 +99,7 @@ OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multim
 
     ---
 
-    Review supported endpoints, request formats, and compatibility notes.
+    Review all 19 supported task types, endpoints, and request formats.
 
     [Open API reference](api-reference.md)
 
@@ -102,4 +123,4 @@ OhMyCaptcha combines **FastAPI**, **Playwright**, and **OpenAI-compatible multim
 
 ## 📌 Scope note
 
-OhMyCaptcha implements a **YesCaptcha-style API surface for the task types available in this repository**. It does **not** claim full feature parity with commercial captcha-solving vendors, and it does **not** guarantee score targeting for `minScore`.
+OhMyCaptcha implements a **YesCaptcha-style API surface covering 19 task types** across reCAPTCHA v2/v3, hCaptcha, Cloudflare Turnstile, and image classification. Browser-based tasks rely on Playwright automation and may require tuning for specific target sites. Image classification leverages multimodal vision models and accuracy depends on model quality.

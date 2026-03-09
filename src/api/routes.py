@@ -22,11 +22,32 @@ log = logging.getLogger(__name__)
 
 router = APIRouter()
 
-_RECAPTCHA_V3_TYPES = {
+_BROWSER_TASK_TYPES = {
     "RecaptchaV3TaskProxyless",
     "RecaptchaV3TaskProxylessM1",
     "RecaptchaV3TaskProxylessM1S7",
     "RecaptchaV3TaskProxylessM1S9",
+    "RecaptchaV3EnterpriseTask",
+    "RecaptchaV3EnterpriseTaskM1",
+    "NoCaptchaTaskProxyless",
+    "RecaptchaV2TaskProxyless",
+    "RecaptchaV2EnterpriseTaskProxyless",
+    "HCaptchaTaskProxyless",
+    "TurnstileTaskProxyless",
+    "TurnstileTaskProxylessM1",
+}
+
+_IMAGE_TASK_TYPES = {
+    "ImageToTextTask",
+    "ImageToTextTaskMuggle",
+    "ImageToTextTaskM1",
+}
+
+_CLASSIFICATION_TASK_TYPES = {
+    "HCaptchaClassification",
+    "ReCaptchaV2Classification",
+    "FunCaptchaClassification",
+    "AwsClassification",
 }
 
 
@@ -39,9 +60,6 @@ def _check_client_key(client_key: str) -> CreateTaskResponse | None:
             errorDescription="Invalid clientKey",
         )
     return None
-
-
-# ── YesCaptcha endpoints (root-level, matching upstream format) ─────
 
 
 @router.post("/createTask", response_model=CreateTaskResponse)
@@ -59,8 +77,8 @@ async def create_task(request: CreateTaskRequest) -> CreateTaskResponse:
             f"Supported: {supported}",
         )
 
-    # Validate required fields for RecaptchaV3 types
-    if request.task.type in _RECAPTCHA_V3_TYPES:
+    # Validate required fields for browser-based tasks
+    if request.task.type in _BROWSER_TASK_TYPES:
         if not request.task.websiteURL or not request.task.websiteKey:
             return CreateTaskResponse(
                 errorId=1,
@@ -68,13 +86,28 @@ async def create_task(request: CreateTaskRequest) -> CreateTaskResponse:
                 errorDescription="websiteURL and websiteKey are required",
             )
 
-    # Validate required fields for ImageToTextTask
-    if request.task.type == "ImageToTextTask":
+    # Validate required fields for ImageToText tasks
+    if request.task.type in _IMAGE_TASK_TYPES:
         if not request.task.body:
             return CreateTaskResponse(
                 errorId=1,
                 errorCode="ERROR_TASK_PROPERTY_EMPTY",
-                errorDescription="body (base64 image) is required for ImageToTextTask",
+                errorDescription="body (base64 image) is required",
+            )
+
+    # Validate required fields for classification tasks
+    if request.task.type in _CLASSIFICATION_TASK_TYPES:
+        has_image = (
+            request.task.image
+            or request.task.images
+            or request.task.body
+            or request.task.queries
+        )
+        if not has_image:
+            return CreateTaskResponse(
+                errorId=1,
+                errorCode="ERROR_TASK_PROPERTY_EMPTY",
+                errorDescription="image data is required for classification tasks",
             )
 
     params = request.task.model_dump(exclude_none=True)
@@ -113,7 +146,6 @@ async def get_task_result(
             solution=SolutionObject(**(task.solution or {})),
         )
 
-    # FAILED
     return GetTaskResultResponse(
         errorId=1,
         errorCode=task.error_code or "ERROR_CAPTCHA_UNSOLVABLE",
@@ -126,9 +158,6 @@ async def get_balance(request: GetBalanceRequest) -> GetBalanceResponse:
     if config.client_key and request.clientKey != config.client_key:
         return GetBalanceResponse(errorId=1, balance=0)
     return GetBalanceResponse(errorId=0, balance=99999.0)
-
-
-# ── health ──────────────────────────────────────────────────
 
 
 @router.get("/api/v1/health")

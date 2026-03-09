@@ -13,8 +13,14 @@ class TaskObject(BaseModel):
     websiteKey: str | None = None
     pageAction: str | None = None
     minScore: float | None = None
-    # image captcha fields
-    body: str | None = None  # base64 image
+    isInvisible: bool | None = None
+    # Image captcha / classification fields
+    body: str | None = None
+    image: str | None = None
+    images: list[str] | None = None
+    question: str | None = None
+    queries: list[str] | str | None = None
+    project_name: str | None = None
 
 
 class CreateTaskRequest(BaseModel):
@@ -39,11 +45,15 @@ class GetTaskResultRequest(BaseModel):
 class SolutionObject(BaseModel):
     gRecaptchaResponse: str | None = None
     text: str | None = None
+    token: str | None = None
+    objects: list[int] | None = None
+    answer: bool | list[int] | None = None
+    userAgent: str | None = None
 
 
 class GetTaskResultResponse(BaseModel):
     errorId: int = 0
-    status: str | None = None  # "processing" | "ready"
+    status: str | None = None
     solution: SolutionObject | None = None
     errorCode: str | None = None
     errorDescription: str | None = None

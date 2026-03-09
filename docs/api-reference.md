@@ -26,28 +26,56 @@ All task endpoints are JSON-based and follow a YesCaptcha-style async task patte
 }
 ```
 
-### Supported task types
+### Supported task types (19 total)
 
-#### reCAPTCHA v3
+#### reCAPTCHA v3 (browser-based)
 
 - `RecaptchaV3TaskProxyless`
 - `RecaptchaV3TaskProxylessM1`
 - `RecaptchaV3TaskProxylessM1S7`
 - `RecaptchaV3TaskProxylessM1S9`
+- `RecaptchaV3EnterpriseTask`
+- `RecaptchaV3EnterpriseTaskM1`
 
-Required fields:
+Required fields: `websiteURL`, `websiteKey`. Optional: `pageAction`, `minScore`.
 
-- `websiteURL`
-- `websiteKey`
-- `pageAction` is recommended and passed through to `grecaptcha.execute()`
+#### reCAPTCHA v2 (browser-based)
+
+- `NoCaptchaTaskProxyless`
+- `RecaptchaV2TaskProxyless`
+- `RecaptchaV2EnterpriseTaskProxyless`
+
+Required fields: `websiteURL`, `websiteKey`. Optional: `isInvisible`.
+
+#### hCaptcha (browser-based)
+
+- `HCaptchaTaskProxyless`
+
+Required fields: `websiteURL`, `websiteKey`.
+
+#### Cloudflare Turnstile (browser-based)
+
+- `TurnstileTaskProxyless`
+- `TurnstileTaskProxylessM1`
+
+Required fields: `websiteURL`, `websiteKey`.
 
 #### Image recognition
 
 - `ImageToTextTask`
+- `ImageToTextTaskMuggle`
+- `ImageToTextTaskM1`
 
-Required fields:
+Required fields: `body` (base64-encoded image).
 
-- `body` — base64-encoded image payload
+#### Image classification
+
+- `HCaptchaClassification`
+- `ReCaptchaV2Classification`
+- `FunCaptchaClassification`
+- `AwsClassification`
+
+Required fields: `image` or `images` or `queries` (base64-encoded). Optional: `question`.
 
 ### Compatibility note on `minScore`
 
@@ -100,7 +128,7 @@ The request model accepts `minScore` for compatibility. The current solver imple
 }
 ```
 
-### Ready response for reCAPTCHA v3
+### Ready response for reCAPTCHA v2/v3
 
 ```json
 {
@@ -108,6 +136,18 @@ The request model accepts `minScore` for compatibility. The current solver imple
   "status": "ready",
   "solution": {
     "gRecaptchaResponse": "token..."
+  }
+}
+```
+
+### Ready response for Cloudflare Turnstile
+
+```json
+{
+  "errorId": 0,
+  "status": "ready",
+  "solution": {
+    "token": "cf-turnstile-token..."
   }
 }
 ```
@@ -120,6 +160,18 @@ The request model accepts `minScore` for compatibility. The current solver imple
   "status": "ready",
   "solution": {
     "text": "{\"captcha_type\":\"click\", ...}"
+  }
+}
+```
+
+### Ready response for classification tasks
+
+```json
+{
+  "errorId": 0,
+  "status": "ready",
+  "solution": {
+    "objects": [0, 3, 6]
   }
 }
 ```
@@ -167,7 +219,21 @@ Example response:
     "RecaptchaV3TaskProxylessM1",
     "RecaptchaV3TaskProxylessM1S7",
     "RecaptchaV3TaskProxylessM1S9",
-    "ImageToTextTask"
+    "RecaptchaV3EnterpriseTask",
+    "RecaptchaV3EnterpriseTaskM1",
+    "NoCaptchaTaskProxyless",
+    "RecaptchaV2TaskProxyless",
+    "RecaptchaV2EnterpriseTaskProxyless",
+    "HCaptchaTaskProxyless",
+    "TurnstileTaskProxyless",
+    "TurnstileTaskProxylessM1",
+    "ImageToTextTask",
+    "ImageToTextTaskMuggle",
+    "ImageToTextTaskM1",
+    "HCaptchaClassification",
+    "ReCaptchaV2Classification",
+    "FunCaptchaClassification",
+    "AwsClassification"
   ],
   "browser_headless": true,
   "captcha_model": "gpt-5.4",
